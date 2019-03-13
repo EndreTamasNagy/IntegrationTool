@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Integration Tool</title>
+    <style>
+      body {
+        background-color: darkgreen;
+        color: white;
+        font-size: 12pt;
+      }
+      h1 {
+        color: white;
+      }
+      #batchList {
+          background-color:greenyellow;
+          width: 300px;
+      }
+      .button {
+        background-color: greenyellow;
+        size: 16pt;
+      }
+      #consoleOutputContainer{
+        background-color: greenyellow;
+        height: 200%;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Batch file executer</h1>
+    <form>
+      <label>Choose batch file:</label>
+      <div>
+          <select id="batchList" size="5" required></select>
+          <select id="deviceList">
+            <!-- TODO: read IP addresses from ini file -->
+              <option value="10.10.139.28" title="10.10.139.28">Upper PPU4</option>
+              <option value="10.10.138.129" title="10.10.138.129">Lower PPU3</option>
+          </select>
+          <button class="button" type="submit">Execute</button>
+      </div>
+      <div>
+        <label>Response:</label>
+      </div>
+      <div id="consoleOutputContainer">
+        <label id="consoleOutput"></label>
+      </div>
+    </form>
+  </body>
+  <script>
+    const electron = require('electron');
+    const {shell}=electron;
+    const fs=require('fs');
+    const Shell = require('node-powershell');
+
+    let batchFolder = "./BatchFiles";
+    //let batchFolder = "./resources/app/BatchFiles";
+    
+    
+    
+    //read batch files from directory
+    fs.readdir(batchFolder, (err, dirContent) => { 
+      //iterate through the files and add them to the batch list
+      batchList = document.getElementById('batchList');
+      for(let file of dirContent){
+        //if it is a bat file
+        if(file.substr(file.length - 4) == ".bat"){
+          batchList.options.add(new Option(file, file));
+        }
+      }
+    });
+    
+
+    //create PowerShell
+    const ps = new Shell();
+    ps.addCommand("pwd");
+    ps.invoke().then(output => { console.log(output);}).catch(err => { console.log(err);})
+    
+
+    document.querySelector('form').addEventListener('submit',(event)=>{
+      event.preventDefault();
+      console.log("Executing batch file...");
+      
+      //get currently selected batch list option
+      let batchListSelect = document.getElementById( "batchList" );
+      let batchFile = batchListSelect.selectedOptions[0].value;
+
+      //get currently selected device option
+      let deviceListSelect = document.getElementById( "deviceList" );
+      let argument = deviceListSelect.selectedOptions[0].value
+
+      //execute batch file with argument
+      ps.addCommand(batchFolder + "/\"" + batchFile + "\" " + argument);
+      ps.invoke().then(output => { 
+        document.getElementById("consoleOutput").append(output);
+        console.log(output);
+        })
+        .catch(err => { 
+          document.getElementById("consoleOutput").append(err);
+          console.log(err);
+        })
+    
+
+    //end of test
+
+    });
+    
+  </script>
+</html>

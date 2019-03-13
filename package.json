@@ -1,0 +1,16 @@
+{
+  "name": "integrationtool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "electron": "^4.0.7",
+    "node-powershell": "^4.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Endre Nagy",
+  "license": "ISC"
+}
