@@ -46,6 +46,7 @@
       <div id="consoleOutputContainer">
         <label id="consoleOutput"></label>
       </div>
+      <button class="button" id="btnSendMail">Send Email</button>
     </form>
   </body>
   <script>
@@ -53,7 +54,9 @@
     const {shell}=electron;
     const fs=require('fs');
     const Shell = require('node-powershell');
+    const nodemailer = require("nodemailer");
 
+    debugger;
     let batchFolder = "./BatchFiles";
     //let batchFolder = "./resources/app/BatchFiles";
     
@@ -77,7 +80,44 @@
     ps.addCommand("pwd");
     ps.invoke().then(output => { console.log(output);}).catch(err => { console.log(err);})
     
+    //Email button event handler
+    document.querySelector('#btnSendMail').addEventListener('click', ()=> {
+      console.log("hey there! You want to send a mail?");
+      debugger;
+      let transporter = nodemailer.createTransport({
+        host: "smtp-mail.outlook.com",
+        secureConnection: false,
+        port: 587,
+        tls: {
+          ciphers: 'SSLv3'
+        },
+        auth: {
+          user: 'username',
+          pass: 'password'
+        }
+      });
 
+      let mailOptions = {
+        from: '"Endre Tamas Nagy" <endre.nagy@evosoft.com>',
+        to: "endre.nagy@evosoft.com",
+        subject: "Test 1",
+        text: "plain text message",
+        html: "<b>some html text</b>"
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+          return console.log(error);
+        }
+      });
+
+      console.log('Message sent: ' + info.response);
+      //console.log("Message sent. Response: %s", info.response);
+      //console.log(info);
+
+    });
+
+    //Submit button event handler
     document.querySelector('form').addEventListener('submit',(event)=>{
       event.preventDefault();
       console.log("Executing batch file...");
@@ -100,9 +140,6 @@
           document.getElementById("consoleOutput").append(err);
           console.log(err);
         })
-    
-
-    //end of test
 
     });
     
