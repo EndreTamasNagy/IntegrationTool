@@ -46,21 +46,17 @@
       <div id="consoleOutputContainer">
         <label id="consoleOutput"></label>
       </div>
-      <button class="button" id="btnSendMail">Send Email</button>
     </form>
+    <button class="button" id="btnSendMail">Send Email</button>
   </body>
   <script>
     const electron = require('electron');
     const {shell}=electron;
     const fs=require('fs');
     const Shell = require('node-powershell');
-    const nodemailer = require("nodemailer");
+    const nodemailer = require('nodemailer');
 
-    debugger;
-    let batchFolder = "./BatchFiles";
-    //let batchFolder = "./resources/app/BatchFiles";
-    
-    
+    let batchFolder = `${__dirname}/BatchFiles`; //"./BatchFiles";
     
     //read batch files from directory
     fs.readdir(batchFolder, (err, dirContent) => { 
@@ -80,10 +76,24 @@
     ps.addCommand("pwd");
     ps.invoke().then(output => { console.log(output);}).catch(err => { console.log(err);})
     
-    //Email button event handler
-    document.querySelector('#btnSendMail').addEventListener('click', ()=> {
+    async function MailSender(){
       console.log("hey there! You want to send a mail?");
-      debugger;
+      //debugger;
+  
+      //Gmail Version
+      var transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // use SSL
+        auth: {
+            user: 'tamas.nagy.endre@gmail.com',
+            pass: '3DPrinter'
+        }
+      });
+  
+      /*
+      //Outlook version
+      //Creating Nodemailer Transporter
       let transporter = nodemailer.createTransport({
         host: "smtp-mail.outlook.com",
         secureConnection: false,
@@ -92,30 +102,34 @@
           ciphers: 'SSLv3'
         },
         auth: {
-          user: 'username',
+          user: 'endre.nagy@evosoft.com',
           pass: 'password'
         }
       });
-
+      */
+  
+      //Setup Mail Options
       let mailOptions = {
-        from: '"Endre Tamas Nagy" <endre.nagy@evosoft.com>',
-        to: "endre.nagy@evosoft.com",
+        from: "tamas.nagy.endre@gmail.com",
+        to: "tamas.nagy.endre@gmail.com",
         subject: "Test 1",
         text: "plain text message",
         html: "<b>some html text</b>"
       };
+  
+  
+      //Deliver the message
+      let info = await transporter.sendMail(mailOptions)
+  
+      console.log("Message sent: %s", info.messageId);
+      // Preview only available when sending through an Ethereal account
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      
+    }
 
-      transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-          return console.log(error);
-        }
-      });
 
-      console.log('Message sent: ' + info.response);
-      //console.log("Message sent. Response: %s", info.response);
-      //console.log(info);
-
-    });
+    //Email button event handler
+    document.querySelector('#btnSendMail').addEventListener('click', MailSender());
 
     //Submit button event handler
     document.querySelector('form').addEventListener('submit',(event)=>{
