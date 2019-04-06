@@ -6,8 +6,9 @@ let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({ fullscreen: true})
+  win = new BrowserWindow({})
 
+  win.maximize();
   // and load the index.html of the app.
   win.loadFile('index.html')
 
