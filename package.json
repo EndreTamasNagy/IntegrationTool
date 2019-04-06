@@ -4,6 +4,7 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
+    "dotenv": "^7.0.0",
     "electron": "^4.0.7",
     "node-powershell": "^4.0.0",
     "nodemailer": "^5.1.1"

@@ -55,6 +55,7 @@
     const fs=require('fs');
     const Shell = require('node-powershell');
     const nodemailer = require('nodemailer');
+    require('dotenv').config();
 
     let batchFolder = `${__dirname}/BatchFiles`; //"./BatchFiles";
     
@@ -76,29 +77,30 @@
     ps.addCommand("pwd");
     ps.invoke().then(output => { console.log(output);}).catch(err => { console.log(err);})
     
-    async function MailSender(){
+    async function MailSender(event){
+      //event.preventDefault();
       // Generate test SMTP service account from ethereal.email
       // Only needed if you don't have a real mail account for testing
       //let account = await nodemailer.createTestAccount();
 
       // create reusable transporter object using the default SMTP transport
       let transporter = nodemailer.createTransport({
-        host: "gmail",
-        //port: 587,
-        //secure: false, // true for 465, false for other ports
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true, // true for 465, false for other ports
         auth: {
-          user: 'tamas.nagy.endre@gmail.com',//account.user, // generated ethereal user
-          pass: 'password'//account.pass // generated ethereal password
+          user: process.env.EMAIL,//account.user, // generated ethereal user
+          pass: process.env.PASSWORD//account.pass // generated ethereal password
         }
       });
 
       // setup email data with unicode symbols
       let mailOptions = {
-        from: 'tamas.nagy.endre@gmail.com', // sender address
-        to: "tamas.nagy.endre@gmail.com", // list of receivers
+        from: 'Anonymous', // sender address
+        to: process.env.EMAIL, // list of receivers
         subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
-        html: "<b>Hello world?</b>" // html body
+        text: "Hi there! Seems like that the email sending feature is working... :)", // plain text body
+        html: "<b>Hi there!</b><br>Seems like that the email sending feature is working... :)" // html body
       };
 
       // send mail with defined transport object
@@ -111,12 +113,12 @@
       // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
       // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
       }
-
+      
       
 
 
     //Email button event handler
-    document.querySelector('#btnSendMail').addEventListener('click', MailSender());
+    document.querySelector('#btnSendMail').addEventListener('click', MailSender(event));
 
     //Submit button event handler
     document.querySelector('form').addEventListener('submit',(event)=>{

@@ -1,2 +1,3 @@
 node_modules
 integrationtool-win32-x64
+.env
